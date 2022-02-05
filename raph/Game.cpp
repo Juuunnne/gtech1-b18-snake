@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include <ctime>
 #include "SDL2/SDL.h"
 #include "Game.hpp"
@@ -157,18 +158,17 @@ void Game::Update()
 
     int new_x = static_cast<int>(pos.x);
     int new_y = static_cast<int>(pos.y);
-
+    //check if head touches body 
+    if (grid[head.x][head.y]==Block::body)
+    {
+        gameOver = true;
+    }
     // Check if head position has changed
     if (new_x != head.x || new_y != head.y)
     {
         last_dir = dir;
-        if (/* condition */)
-        {
-            /* code */
-        }
-        
-    
     }
+    //Check if 
     if (new_x == food.x && new_y == food.y)
     {
         food_ate = true;
@@ -179,7 +179,7 @@ void Game::Update()
 
     Block & next = grid[head.x][head.y];
 }
-
+//Game general renderer 
 void Game::Render()
 {
     SDL_Rect block;
@@ -207,7 +207,7 @@ void Game::Render()
     // Update Screen
     SDL_RenderPresent(renderer);
 }
-
+//Generate a food on playground 
 void Game::Food()
 {
      
@@ -215,26 +215,40 @@ void Game::Food()
     int x, y ;
     if (food_ate)
     {
+        do
+        {
         x = rand() % 32 + 1;
         y = rand() % 32 + 1;   
-        Grow();
     
-        if (grid[food.x][food.y]==Block::empty)
-        {
-        food.x = x;
-        food.y = y;   
-        }
+            if (grid[x][y]==Block::empty)
+            {
+            food.x = x;
+            food.y = y;   
+            Grow();
+            }
+        } while (food_ate == true);
+        
+        
     }
     
 
 }
-
+//Add segment to snake when eat a
 void Game::Grow()
 {
     growing = true;
     food_ate = false;
-    size = size++;
+    size += 10;
+
 }
+
+void Game::addSegment(int body_x, int body_y){
+    
+    Segment * seg = new Segment(body_x, body_y);
+    body.push_back(seg);
+
+}
+
 
 void Game::Close()
 {
