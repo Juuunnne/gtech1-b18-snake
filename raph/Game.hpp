@@ -1,19 +1,10 @@
-#ifndef GAME_HPP_INCLUDED
-#define GAME_HPP_INCLUDED
 #pragma once
 #include <vector>
 #include "SDL2/SDL.h"
-    struct Segment {
-        int x;
-        int y;
-        Segment(int posx, int posy) {
-            x = posx;
-            y = posy;
-        }
-};
 
 class Game
 {
+
 public:
 
     Game();
@@ -23,7 +14,6 @@ private:
 
     bool paused = false;
     bool running = false;
-    bool gameOver = false;
     bool food_ate = false;
     bool alive = false;
     bool growing = false;
@@ -51,9 +41,8 @@ private:
 
     SDL_Point head = { static_cast<int>(pos.x), static_cast<int>(pos.y) };
     SDL_Point food = { static_cast<int>(pos.x), static_cast<int>(pos.y) };
+    std::vector<SDL_Point> body;
     
-    std::vector<Segment *> body;
-
     Block grid[GRID_WIDTH][GRID_HEIGHT];
 
     float speed = 0.5f;
@@ -67,7 +56,3 @@ private:
     void Close();
 
 };
-
-
-
-#endif

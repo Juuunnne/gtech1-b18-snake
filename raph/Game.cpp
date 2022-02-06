@@ -1,8 +1,8 @@
-#include "Game.hpp"
 #include <iostream>
 #include <string>
 #include <ctime>
 #include "SDL2/SDL.h"
+#include "Game.hpp"
 
 using namespace std;
 //Initialize playground size
@@ -169,22 +169,36 @@ void Game::Update()
 
     int new_x = static_cast<int>(pos.x);
     int new_y = static_cast<int>(pos.y);
-    //check if head touches body 
-    if (grid[head.x][head.y]==Block::body)
-    {
-        gameOver = true;
-    }
+
     // Check if head position has changed
     if (new_x != head.x || new_y != head.y)
     {
         last_dir = dir;
-    }
-    //Check if 
-    if (new_x == food.x && new_y == food.y)
-    {
-        food_ate = true;
-    }
+        // If we are growing, just make a new segment
+        if (growing == true)
+        {
+            size++;
+            body.push_back(head);
+            growing = false;
+            grid[head.x][head.y] = Block::body;
+        }
+        else
+        {
+            // We need to shift the body
+            SDL_Point free = head;
+            vector<SDL_Point>::reverse_iterator rit = body.rbegin();
+            for ( ; rit != body.rend(); ++rit)
+            {
+                grid[free.x][free.y] = Block::body;
+                swap(*rit, free);
+            }
 
+            grid[free.x][free.y] = Block::empty;
+        }
+
+    
+    }
+    
     head.x = new_x;
     head.y = new_y;
 
@@ -202,7 +216,7 @@ void Game::Update()
 
     grid[head.x][head.y] = Block::head;
 }
-//Game general renderer 
+
 void Game::Render()
 {
     SDL_Rect block;
@@ -233,9 +247,6 @@ void Game::Render()
         SDL_RenderFillRect(renderer, &block);
     }
 
-    //Render socore
-
-
     // Render food
     block.x = food.x * block.w;
     block.y = food.y * block.h;
@@ -246,39 +257,33 @@ void Game::Render()
     // Update Screen
     SDL_RenderPresent(renderer);
 }
-//Generate a food on playground 
+
 void Game::Food()
 {
-     
-    srand(time(NULL));
-    int x, y ;
-    if (food_ate)
-    {
-        do
+    int x, y;
+    while (true)
+    {   //get a random position for the food
+        x = rand() % GRID_WIDTH;
+        y = rand() % GRID_HEIGHT;
+
+        //if the position is free : set the food here
+        if (grid[x][y] == Block::empty)
         {
-        x = rand() % 32 + 1;
-        y = rand() % 32 + 1;   
-    
-            if (grid[x][y]==Block::empty)
-            {
+            grid[x][y] = Block::food;
             food.x = x;
-            food.y = y;   
+            food.y = y;
             Grow();
-            }
-        } while (food_ate == true);
-        
-        
+            break;
+        }
     }
 }
-//Add segment to snake when eat a
+
 void Game::Grow()
 {
     growing = true;
     food_ate = false;
-    size += 10;
+    size = size++;
 }
-
-
 
 void Game::Close()
 {
