@@ -10,23 +10,24 @@
             x = posx;
             y = posy;
         }
-    };
+};
+
 class Game
 {
-
 public:
 
     Game();
     void Run();
-    int GetScore();
-    int GetSize();
 
 private:
+
+    bool paused = false;
     bool running = false;
     bool gameOver = false;
     bool food_ate = false;
     bool alive = false;
     bool growing = false;
+
     int fps = 0;
     int size = 0;
 
@@ -41,6 +42,7 @@ private:
 
     enum class Block { head, body, food, empty };
     enum class Move { up, down, left, right };
+    
 
     Move last_dir = Move::up;
     Move dir = Move::up;
@@ -62,7 +64,6 @@ private:
     void Grow();
     void Update();
     void PollEvents();
-    void addSegment(int body_x, int body_y);
     void Close();
 
 };
