@@ -1,10 +1,12 @@
+#include "Game.hpp"
 #include <iostream>
+#include <vector>
 #include <string>
 #include <ctime>
 #include "SDL2/SDL.h"
-#include "Game.hpp"
 
 using namespace std;
+
 //Initialize playground size
 Game::Game()
 {   //init grid
@@ -53,8 +55,9 @@ void Game::GameLoop()
     int frame_time, frames = 0;
     Food();
     while (running)
-    
-    {   //get time since SDL2 start
+    {   
+       
+        //get time since SDL2 start
         before = SDL_GetTicks();
 
         PollEvents();
@@ -64,6 +67,7 @@ void Game::GameLoop()
             Render();
         }
         else Render();
+
         frames++;
         after = SDL_GetTicks();
         frame_time = after - before;
@@ -80,7 +84,8 @@ void Game::GameLoop()
         {
             SDL_Delay(FRAME_RATE - frame_time);
         }
-    }
+       }
+    
 
 }
 //Get snake's direction
@@ -169,6 +174,8 @@ void Game::Update()
 
     int new_x = static_cast<int>(pos.x);
     int new_y = static_cast<int>(pos.y);
+    int score = 0;
+    // Update scoreboard
 
     // Check if head position has changed
     if (new_x != head.x || new_y != head.y)
@@ -216,7 +223,7 @@ void Game::Update()
 
     grid[head.x][head.y] = Block::head;
 }
-
+//Game's graphic
 void Game::Render()
 {
     SDL_Rect block;
@@ -257,7 +264,7 @@ void Game::Render()
     // Update Screen
     SDL_RenderPresent(renderer);
 }
-
+//Generate food
 void Game::Food()
 {
     int x, y;
@@ -277,16 +284,17 @@ void Game::Food()
         }
     }
 }
-
+//Grow element
 void Game::Grow()
 {
     growing = true;
     food_ate = false;
     size = size++;
 }
-
+//Destroyer
 void Game::Close()
 {
     SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
     SDL_Quit();
 }

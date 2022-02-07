@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAME_HPP
+#define GAME_CPP
 #include <vector>
 #include "SDL2/SDL.h"
 
@@ -56,3 +57,6 @@ private:
     void Close();
 
 };
+
+
+#endif
