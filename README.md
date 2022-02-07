@@ -1,4 +1,4 @@
-**Game development : Snake with C++/SDL2
+**Game development : Snake with C++/SDL2**
 
 
 The game snake will be developed under ```C++``` and ```SDL2``` which allows us to have graphic render.
