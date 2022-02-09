@@ -1,12 +1,11 @@
-#include "Game.hpp"
 #include <iostream>
-#include <vector>
 #include <string>
 #include <ctime>
 #include "SDL2/SDL.h"
+#include <SDL/SDL_ttf.h>
+#include "Game.hpp"
 
 using namespace std;
-
 //Initialize playground size
 Game::Game()
 {   //init grid
@@ -15,6 +14,7 @@ Game::Game()
         {
             grid[i][j] = Block::empty;
         }
+    
 }
 //Initialize window/renderer
 void Game::Run()
@@ -27,8 +27,7 @@ void Game::Run()
     }
 
     // Create Window
-    window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (window == NULL) window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
     if (window == NULL)
     {
@@ -37,13 +36,14 @@ void Game::Run()
     }
 
     // Create renderer
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(renderer == NULL) renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL)
     {
         cout << "Renderer could not be created! SDL_Error: " << SDL_GetError() << endl;
         exit(EXIT_FAILURE);
     }
-
+    	
+    TTF_Init();
     alive = true;
     running = true;
     GameLoop();
@@ -55,19 +55,17 @@ void Game::GameLoop()
     int frame_time, frames = 0;
     Food();
     while (running)
-    {   
-       
-        //get time since SDL2 start
+    
+    {   //get time since SDL2 start
         before = SDL_GetTicks();
 
         PollEvents();
+        printf("alive=%d\n", alive);
         if (paused == false)
         {
             Update();
-            Render();
         }
-        else Render();
-
+        Render();
         frames++;
         after = SDL_GetTicks();
         frame_time = after - before;
@@ -84,8 +82,7 @@ void Game::GameLoop()
         {
             SDL_Delay(FRAME_RATE - frame_time);
         }
-       }
-    
+    }
 
 }
 //Get snake's direction
@@ -132,6 +129,12 @@ void Game::PollEvents()
                         paused = false;
                     }
                     break;
+                case SDLK_SPACE:
+                    if(!alive)
+                    {
+                        Reload();
+                    }
+                    break;
             }
         }
     }
@@ -141,7 +144,7 @@ void Game::Update()
 {
     if (!alive)
         return;
-
+    
     switch (dir)
     {
         case Move::up:
@@ -166,16 +169,14 @@ void Game::Update()
     }
 
     // No wall collision 
-    if (pos.x < 0) pos.x = GRID_WIDTH - 1;
-    else if (pos.x > GRID_WIDTH - 1) pos.x = 0;
+    if (pos.x < 0) alive = false;
+    else if (pos.x > GRID_WIDTH - 1) alive = false;
 
-    if (pos.y < 0) pos.y = GRID_HEIGHT - 1;
-    else if (pos.y > GRID_HEIGHT - 1) pos.y = 0;
+    if (pos.y < 0) alive = false;
+    else if (pos.y > GRID_HEIGHT - 1) alive = false;
 
-    int new_x = static_cast<int>(pos.x);
+    int new_x = static_cast<int>(pos.x); //TODO!
     int new_y = static_cast<int>(pos.y);
-    int score = 0;
-    // Update scoreboard
 
     // Check if head position has changed
     if (new_x != head.x || new_y != head.y)
@@ -215,15 +216,10 @@ void Game::Update()
         Food();
         Grow();
     }
-    // Check if we're dead
-    else if (grid[head.x][head.y] == Block::body)
-    {
-        alive = false;
-    }
 
     grid[head.x][head.y] = Block::head;
 }
-//Game's graphic
+
 void Game::Render()
 {
     SDL_Rect block;
@@ -240,7 +236,7 @@ void Game::Render()
     block.y = head.y * block.h;
     if (paused) SDL_SetRenderDrawColor(renderer, 230, 165, 45, 255);
     else if (alive) SDL_SetRenderDrawColor(renderer, 230, 165, 15, 255);
-    else       SDL_SetRenderDrawColor(renderer, 230, 200, 140, 125);
+    else       SDL_SetRenderDrawColor(renderer, 230, 0, 140, 125);
     SDL_RenderFillRect(renderer, &block);
 
     //Render snake's body 
@@ -261,15 +257,20 @@ void Game::Render()
     else SDL_SetRenderDrawColor(renderer, 255, 55, 0, 255);    
     SDL_RenderFillRect(renderer, &block);
 
+    //Render some text on renderer
+    
+
+
     // Update Screen
     SDL_RenderPresent(renderer);
 }
-//Generate food
+
 void Game::Food()
 {
     int x, y;
     while (true)
     {   //get a random position for the food
+        srand(time(NULL));
         x = rand() % GRID_WIDTH;
         y = rand() % GRID_HEIGHT;
 
@@ -284,17 +285,39 @@ void Game::Food()
         }
     }
 }
-//Grow element
+
 void Game::Grow()
 {
     growing = true;
     food_ate = false;
     size = size++;
 }
-//Destroyer
+
 void Game::Close()
 {
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
+}
+
+void Game::Reload()
+{
+    alive = true;
+    size = 0;
+    for (int i = 0; i < GRID_WIDTH; ++i)
+    {
+        for (int j = 0; j < GRID_HEIGHT; ++j)
+        {
+            grid[i][j] = Block::empty;
+        } 
+    }
+    body.clear();
+    head.x = 16;
+    head.y = 16;
+    pos.x = 16;
+    pos.y = 16;
+    grid[head.x][head.y] = Block::head;
+    dir = Move::up;
+    last_dir = Move::up;
+    Run();
 }
