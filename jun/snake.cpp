@@ -2,7 +2,7 @@
 #include <string>
 #include <ctime>
 #include "SDL2/SDL.h"
-#include "Game.hpp"
+#include "snake.hpp"
 
 using namespace std;
 //Initialize playground size
@@ -43,6 +43,7 @@ void Game::Run()
 
     alive = true;
     running = true;
+    score = 0;
     GameLoop();
 }
 //Main Game loop
@@ -57,10 +58,7 @@ void Game::GameLoop()
         before = SDL_GetTicks();
 
         PollEvents();
-        if (paused == false)
-        {
-            Update();
-        }
+        if (paused == false)    Update();
         Render();
         frames++;
         after = SDL_GetTicks();
@@ -145,6 +143,58 @@ void Game::Update()
             break;
     }
 
+    if (grid[head.x][head.y] == grid[warp1.x][warp1.y])
+    {
+        switch (dir)
+        {
+        case Move::up:
+            pos.x = warp2.x;
+            pos.y = warp2.y - 1;
+            break;
+
+        case Move::down:
+            pos.x = warp2.x;
+            pos.y = warp2.y + 1;
+            break;
+
+        case Move::left:
+            pos.x = warp2.x - 1;
+            pos.y = warp2.y;
+            break;
+
+        case Move::right:
+            pos.x = warp2.x + 1;
+            pos.y = warp2.y;
+            break;
+        }
+    }
+
+    if (grid[head.x][head.y] == grid[warp2.x][warp2.y])
+    {
+        switch (dir)
+        {
+        case Move::up:
+            pos.x = warp1.x;
+            pos.y = warp1.y - 1;
+            break;
+
+        case Move::down:
+            pos.x = warp1.x;
+            pos.y = warp1.y + 1;
+            break;
+
+        case Move::left:
+            pos.x = warp1.x - 1;
+            pos.y = warp1.y;
+            break;
+
+        case Move::right:
+            pos.x = warp1.x + 1;
+            pos.y = warp1.y;
+            break;
+        }
+    }
+
     // No wall collision 
     if (pos.x < 0) alive = false;
     else if (pos.x > GRID_WIDTH - 1) alive = false;
@@ -191,6 +241,12 @@ void Game::Update()
     {
         Food();
         growing = true;
+        score ++;
+        if (score %4 == 0)
+        {
+            Warp();
+        }
+        
     }
 
     grid[head.x][head.y] = Block::head;
@@ -208,12 +264,27 @@ void Game::Render()
     else        SDL_SetRenderDrawColor(renderer, 85, 160, 50, 255);
     SDL_RenderClear(renderer);
 
+    if (score >= 4)
+    {
+        // Render warp 1
+        block.x = warp1.x * block.w;
+        block.y = warp1.y * block.h;
+        SDL_SetRenderDrawColor(renderer, 150, 0, 150, 255); 
+        SDL_RenderFillRect(renderer, &block);
+
+        // Render warp 2
+        block.x = warp2.x * block.w;
+        block.y = warp2.y * block.h;
+        SDL_SetRenderDrawColor(renderer, 150, 0, 150, 255); 
+        SDL_RenderFillRect(renderer, &block);
+    }
+    
     // Render snake's head
     block.x = head.x * block.w;
     block.y = head.y * block.h;
     if (paused) SDL_SetRenderDrawColor(renderer, 230, 165, 45, 255);
     else if (alive) SDL_SetRenderDrawColor(renderer, 230, 165, 15, 255);
-    else       SDL_SetRenderDrawColor(renderer, 230, 0, 140, 125);
+    else       SDL_SetRenderDrawColor(renderer, 195, 200, 145, 125);
     SDL_RenderFillRect(renderer, &block);
 
     //Render snake's body 
@@ -243,15 +314,45 @@ void Game::Food()
     while (true)
     {   //get a random position for the food
         srand(time(NULL));
-        x = rand() % GRID_WIDTH;
-        y = rand() % GRID_HEIGHT;
+        x_food = rand() % GRID_WIDTH;
+        y_food = rand() % GRID_HEIGHT;
 
         //if the position is free : set the food here
-        if (grid[x][y] == Block::empty)
+        if (grid[x_food][y_food] == Block::empty)
         {
-            grid[x][y] = Block::food;
-            food.x = x;
-            food.y = y;
+            grid[x_food][y_food] = Block::food;
+            food.x = x_food;
+            food.y = y_food;
+            break;
+        }
+    }
+}
+//spawn warp
+void Game::Warp()
+{
+    while (true)
+    {   
+        //get a random position for the food
+        x_warp1 = rand() % GRID_WIDTH;
+        y_warp1 = rand() % GRID_HEIGHT;
+
+        //if the position is free : set the food here
+        if (grid[x_warp1][y_warp1] == Block::empty)
+        {
+            grid[x_warp1][y_warp1] = Block::warp;
+            warp1.x = x_warp1;
+            warp1.y = y_warp1;
+        }
+        //get a random position for warp2
+        x_warp2 = rand() % GRID_WIDTH;
+        y_warp2 = rand() % GRID_HEIGHT;
+
+        //if the position is free : set the food here
+        if (grid[x_warp2][y_warp2] == Block::empty && x_warp2 != x_warp1 && y_warp2 != y_warp1 )
+        {
+            grid[x_warp2][y_warp2] = Block::warp;
+            warp2.x = x_warp2;
+            warp2.y = y_warp2;
             break;
         }
     }
