@@ -55,32 +55,34 @@ void Game::GameLoop()
     int frame_time, frames = 0;
     Food();
     while (running)
-    
-    {   //get time since SDL2 start
-        before = SDL_GetTicks();
+    {
+        if (paused == false)
+        
+        {   //get time since SDL2 start
+            before = SDL_GetTicks();
 
-        PollEvents();
-        Update();
-        Render();
+            PollEvents();
+            Update();
+            Render();
 
-        frames++;
-        after = SDL_GetTicks();
-        frame_time = after - before;
+            frames++;
+            after = SDL_GetTicks();
+            frame_time = after - before;
 
-        if (after - second >= 1000)
-        {
-            fps = frames;
-            frames = 0;
-            second = after;
-        }
+            if (after - second >= 1000)
+            {
+                fps = frames;
+                frames = 0;
+                second = after;
+            }
 
-        //if frame lasted less than frame rate, wait until frame rate = frame time
-        if (FRAME_RATE > frame_time)
-        {
-            SDL_Delay(FRAME_RATE - frame_time);
+            //if frame lasted less than frame rate, wait until frame rate = frame time
+            if (FRAME_RATE > frame_time)
+            {
+                SDL_Delay(FRAME_RATE - frame_time);
+            }
         }
     }
-
 }
 //Get snake's direction
 void Game::PollEvents()
@@ -115,9 +117,23 @@ void Game::PollEvents()
                     if (last_dir != Move::left)
                         dir = Move::right;
                     break;
+                
+                case SDLK_p:
+                    if( paused == true )
+                    {
+                        //Unpause the timer
+                        paused = false;
+                    }
+                    else
+                    {
+                        //Pause the timer
+                        paused = true;
+                    }
             }
         }
     }
+
+    
 }
 //Update snake's direction  
 void Game::Update()
@@ -245,6 +261,7 @@ void Game::Render()
 void Game::Food()
 {
     int x, y;
+    srand( time( NULL ) );
     while (true)
     {   //get a random position for the food
         x = rand() % GRID_WIDTH;
@@ -269,8 +286,18 @@ void Game::Grow()
     size = size++;
 }
 
+int Game::reload(){
+    alive = true;
+    Close();
+
+    Run();
+
+    return 0;
+}
+
 void Game::Close()
 {
     SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
     SDL_Quit();
 }
