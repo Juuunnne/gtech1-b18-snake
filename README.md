@@ -13,13 +13,14 @@ Make a folder then put all the ```cpp``` and ```hpp ``` file into it.
 ```mkdir``` FolderName    ```cd``` go into that folder
 
 Step 3
+Use Makefile to compile and launch the Game
+```Make run``` 
 
 
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-Game's Rules :
+**Game's Rules :**
 
 1-Snake will move automatically in the chosen direction 
 
