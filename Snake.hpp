@@ -1,12 +1,9 @@
-#ifndef GAME_HPP
-#define GAME_CPP
+#pragma once
 #include <vector>
 #include "SDL2/SDL.h"
 
-
 class Game
 {
-
 public:
 
     Game();
@@ -23,10 +20,9 @@ private:
     int x;
     int y;
 
-    
     static const int FRAME_RATE     = 1000 / 60;
-    static const int SCREEN_WIDTH   = 800;
-    static const int SCREEN_HEIGHT  = 600;
+    static const int SCREEN_WIDTH   = 640;
+    static const int SCREEN_HEIGHT  = 640;
     static const int GRID_WIDTH     = 32;
     static const int GRID_HEIGHT    = 32;
 
@@ -55,10 +51,6 @@ private:
     void Food();
     void Update();
     void PollEvents();
-    void Reload();
     void Close();
-
+    void Reload();
 };
-
-
-#endif

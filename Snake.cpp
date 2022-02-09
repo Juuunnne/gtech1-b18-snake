@@ -2,7 +2,6 @@
 #include <string>
 #include <ctime>
 #include "SDL2/SDL.h"
-#include <SDL/SDL_ttf.h>
 #include "Game.hpp"
 
 using namespace std;
@@ -14,7 +13,6 @@ Game::Game()
         {
             grid[i][j] = Block::empty;
         }
-    
 }
 //Initialize window/renderer
 void Game::Run()
@@ -42,8 +40,7 @@ void Game::Run()
         cout << "Renderer could not be created! SDL_Error: " << SDL_GetError() << endl;
         exit(EXIT_FAILURE);
     }
-    	
-    TTF_Init();
+
     alive = true;
     running = true;
     GameLoop();
@@ -111,17 +108,9 @@ void Game::PollEvents()
                     if (!paused)    paused = true;
                     else if (paused)paused = false;
                     break;
-<<<<<<< HEAD
-                case SDLK_SPACE:
-                    if(!alive)
-                    {
-                        Reload();
-                    }
-=======
 
                 case SDLK_SPACE:
                     if(!alive)    Reload();
->>>>>>> 42144f7c6a76f4f3c10cdf19b03a529c97a50f04
                     break;
             }
         }
@@ -244,10 +233,6 @@ void Game::Render()
     if (paused) SDL_SetRenderDrawColor(renderer, 230, 55, 30, 255);
     else SDL_SetRenderDrawColor(renderer, 255, 55, 0, 255);    
     SDL_RenderFillRect(renderer, &block);
-
-    //Render some text on renderer
-    
-
 
     // Update Screen
     SDL_RenderPresent(renderer);
