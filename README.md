@@ -3,13 +3,17 @@
 
 The game snake was developed under ```C++``` and ```SDL2``` which allows us to have graphic render.
 
-Step to follow in order to launch the Snake :
+**Step to follow in order to launch the Snake : **
 
 Step 1
 In your debian terminal enter : sudo apt-get update / sudo apt-get install man make g++ git openssh-client libsdl2-dev
 
 Step 2
-Make a folder then put all the ```cpp``` and ```hpp ``` file
+Make a folder then put all the ```cpp``` and ```hpp ``` file into it.
+```mkdir``` FolderName    ```cd``` go into that folder
+
+Step 3
+
 
 
 
