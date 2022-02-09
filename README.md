@@ -1,7 +1,9 @@
 **Game development : Snake with C++/SDL2**
-
-
 The game snake was developed under ```C++``` and ```SDL2``` which allows us to have graphic render.
+Code edit by : Raphaël/Jun
+Our GitHub:
+Raphaël:https://github.com/SmartNewt
+Jun:https://github.com/Juuunnne
 
 **Step to follow in order to launch the Snake :**
 
