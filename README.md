@@ -26,13 +26,13 @@ Use Makefile to compile and launch the Game
 
 **Game's Rules :**
 
-1-Snake will move automatically in the chosen direction 
+1-Snake will move automatically in the chosen direction, player controls the Snake with arrow of the keyboard
 
 2-Collect the food(red box) as more possbile as you can 
 
-3-While Snake's head touches the border or its body, player will lose. Press SPACE to restart the Game
+3-While Snake's head touches the border or its body, player will lose. Press ``` SPACE```  to restart the Game
 
-4-Player can also press P to pause the Game 
+4-Player can also press ``` P```  to pause the Game 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
