@@ -13,8 +13,6 @@ Game::Game()
         {
             grid[i][j] = Block::empty;
         }
-
-    srand(static_cast<unsigned int>(time(0)));
 }
 //Initialize window/renderer
 void Game::Run()
@@ -27,8 +25,7 @@ void Game::Run()
     }
 
     // Create Window
-    window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (window == NULL) window = SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
     if (window == NULL)
     {
@@ -37,7 +34,7 @@ void Game::Run()
     }
 
     // Create renderer
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(renderer == NULL) renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL)
     {
         cout << "Renderer could not be created! SDL_Error: " << SDL_GetError() << endl;
@@ -140,7 +137,7 @@ void Game::Update()
 {
     if (!alive)
         return;
-
+    
     switch (dir)
     {
         case Move::up:
@@ -165,13 +162,13 @@ void Game::Update()
     }
 
     // No wall collision 
-    if (pos.x < 0) pos.x = GRID_WIDTH - 1;
-    else if (pos.x > GRID_WIDTH - 1) pos.x = 0;
+    if (pos.x < 0) alive = false;
+    else if (pos.x > GRID_WIDTH - 1) alive = false;
 
-    if (pos.y < 0) pos.y = GRID_HEIGHT - 1;
-    else if (pos.y > GRID_HEIGHT - 1) pos.y = 0;
+    if (pos.y < 0) alive = false;
+    else if (pos.y > GRID_HEIGHT - 1) alive = false;
 
-    int new_x = static_cast<int>(pos.x);
+    int new_x = static_cast<int>(pos.x); //TODO!
     int new_y = static_cast<int>(pos.y);
 
     // Check if head position has changed
@@ -212,11 +209,6 @@ void Game::Update()
         Food();
         Grow();
     }
-    // Check if we're dead
-    else if (grid[head.x][head.y] == Block::body)
-    {
-        alive = false;
-    }
 
     grid[head.x][head.y] = Block::head;
 }
@@ -228,18 +220,21 @@ void Game::Render()
     block.h = SCREEN_WIDTH / GRID_HEIGHT;
 
     // Clear screen
-    SDL_SetRenderDrawColor(renderer, 85, 160, 50, 255);
+    if (paused) SDL_SetRenderDrawColor(renderer, 85, 160, 80, 255);
+    else        SDL_SetRenderDrawColor(renderer, 85, 160, 50, 255);
     SDL_RenderClear(renderer);
 
     // Render snake's head
     block.x = head.x * block.w;
     block.y = head.y * block.h;
-    if (alive) SDL_SetRenderDrawColor(renderer, 230, 165, 15, 255);
-    else       SDL_SetRenderDrawColor(renderer, 230, 200, 140, 125);
+    if (paused) SDL_SetRenderDrawColor(renderer, 230, 165, 45, 255);
+    else if (alive) SDL_SetRenderDrawColor(renderer, 230, 165, 15, 255);
+    else       SDL_SetRenderDrawColor(renderer, 230, 0, 140, 125);
     SDL_RenderFillRect(renderer, &block);
 
     //Render snake's body 
-    if(alive) SDL_SetRenderDrawColor(renderer, 195, 185, 20, 255);
+    if (paused) SDL_SetRenderDrawColor(renderer, 195, 185, 50, 255);
+    else if(alive) SDL_SetRenderDrawColor(renderer, 195, 185, 20, 255);
     else      SDL_SetRenderDrawColor(renderer, 195, 200, 145, 125);
     for (SDL_Point & point : body)
     {
@@ -251,7 +246,8 @@ void Game::Render()
     // Render food
     block.x = food.x * block.w;
     block.y = food.y * block.h;
-    SDL_SetRenderDrawColor(renderer, 255, 55, 0, 255);    
+    if (paused) SDL_SetRenderDrawColor(renderer, 230, 55, 30, 255);
+    else SDL_SetRenderDrawColor(renderer, 255, 55, 0, 255);    
     SDL_RenderFillRect(renderer, &block);
 
     // Update Screen
@@ -264,6 +260,7 @@ void Game::Food()
     srand( time( NULL ) );
     while (true)
     {   //get a random position for the food
+        srand(time(NULL));
         x = rand() % GRID_WIDTH;
         y = rand() % GRID_HEIGHT;
 
@@ -286,18 +283,33 @@ void Game::Grow()
     size = size++;
 }
 
-int Game::reload(){
-    alive = true;
-    Close();
 
-    Run();
-
-    return 0;
-}
 
 void Game::Close()
 {
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
+}
+
+void Game::Reload()
+{
+    alive = true;
+    size = 0;
+    for (int i = 0; i < GRID_WIDTH; ++i)
+    {
+        for (int j = 0; j < GRID_HEIGHT; ++j)
+        {
+            grid[i][j] = Block::empty;
+        } 
+    }
+    body.clear();
+    head.x = 16;
+    head.y = 16;
+    pos.x = 16;
+    pos.y = 16;
+    grid[head.x][head.y] = Block::head;
+    dir = Move::up;
+    last_dir = Move::up;
+    Run();
 }
